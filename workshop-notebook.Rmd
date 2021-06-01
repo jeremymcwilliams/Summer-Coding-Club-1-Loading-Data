@@ -3,17 +3,229 @@ title: "R Notebook"
 output: html_notebook
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
 
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+# LC Summer Coding Club
+## Session 1: Loading Data in RStudio Server
+
+Welcome to Summer Coding Club part I! Today we're going to look at loading datasets into RStudio Server. There are lots of options, so let's get started:
+
+
+
+* Built-in and package-specific datasets
+* Uploading to the Files area
+* From remote URL
+* From Google Sheets
+* Using an API
+** covidactnow.org
+** key: 241c4552cb0344cb90bb1283680d45da
+** api reference: https://apidocs.covidactnow.org/api
+
+
+### Built-in datasets.
+R has a number of built-in data sets, many of which are great for gaining some practice with getting your feet wet with R. 
+
 
 ```{r}
-plot(cars)
+
+# This command will show the available built-in data sets currently loaded with "base R"
+data()
+
+
+
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+We can learn more about a specific dataset by using the "?" command. We can also take a look at the data by using the "head" command on the dataset, or just priting the dataset:
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
 
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+```{r}
+# Displays more info about "mtcars" in the help window
+?mtcars
+
+# Displays structure and first 6 rows
+head(mtcars)
+
+#Displays entire dataset
+mtcars
+
+
+```
+
+
+Datasets can also be included with some libraries/packages. Let's load the tidyverse, and then run the data() command again:
+
+```{r}
+# The "tidyverse" is a series of packages used frequently in data science
+library(tidyverse)
+
+data()
+
+
+
+```
+
+YOUR TURN:
+Load the "palmerpenguins" package, and take a look at the included dataset(s). How might you find out what they are?
+
+
+```{r}
+
+
+
+```
+
+
+
+### Loading data from the files area
+
+Each user on our RStudio Server instance has a home directory, where you can keep various files, R Projects, etc. You can view your files in the lower right-hand window, under the "Files" tab.
+
+You should see a file called "multco.csv", which has some raw population numbers for Multnomah County over the last several years (data from data.census.gov). Below, you can use the "read_csv" function to open a dataset, and assign it to a variable (in this case, "multco"):
+
+
+
+```{r}
+
+# The "read_csv" function is part of the "readr" package, which is part of the tidyverse.
+multco<-read_csv("multco.csv")
+
+multco
+```
+
+
+You can also use the "upload" button in the files area to load a csv file, and then use that data with the technique above.
+
+YOUR TURN:
+
+Find a dataset in csv format, download it, upload it into your "files" area, and then assign it to a variable and print it out. Feel free to search the web for a dataset, or use EJ's Political Science data resource page: https://library.lclark.edu/polisci/ps_data
+
+```{r}
+
+
+
+
+
+```
+
+
+
+
+
+### Loading data by URL
+
+Many data sources provide stable links to comma separated value (csv) datasets. While you can use the download/upload method, you can also query a URL directly. This could be useful in cases where the data is dynamic.
+
+```{r}
+
+# The New York Times posts their updated daily covid data on their GitHub site (https://github.com/nytimes/covid-19-data). Below we'll load the data tracking statistics by US State:
+
+
+url<-"https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv"
+
+
+# The read_csv function also works for URLs
+covidData<-read_csv(url)
+
+covidData
+
+
+
+
+```
+
+
+YOUR TURN:
+
+Peruse the datasets on FiveThirtyEight's github site: https://github.com/fivethirtyeight/data
+
+Find a dataset you're interested in, and load it as a variable into RStudio Server.
+(Hint: once you drill down to a csv file you want to load, click "raw" to get a direct URL)
+```{r}
+
+
+
+
+```
+
+
+
+
+
+### Loading data from Google Spreadsheets
+
+While one option for getting Google sheets data is to download the sheet as CSV, and then upload it to RStudio Server, we can also use the 'googlesheets4' package to directly import it from Google Drive. This could be useful when using a dynamic data set...you can just re-run the querying code to get the latest data.
+
+Before doing an example, let's collect some data using a Google Form:
+
+https://forms.gle/nLMPv6WnyXF5cm539
+
+The results of form are logged in this Google Sheet: 
+https://docs.google.com/spreadsheets/d/1JNaKXWEythLlr0FJR8ePtcyFANyZ5BKM-3EW-GsYABg/edit?usp=sharing
+
+
+
+```{r}
+
+library(googlesheets4)
+options(gargle_oob_default = TRUE)
+
+
+
+
+
+example <- read_sheet("https://docs.google.com/spreadsheets/d/1JNaKXWEythLlr0FJR8ePtcyFANyZ5BKM-3EW-GsYABg/edit?usp=sharing")
+
+
+example
+
+```
+
+
+
+
+```{r}
+library(httr) ; library(jsonlite)
+
+
+
+
+path <- "https://data.police.uk/api/crimes-street/burglary?"
+
+request <- GET(url = path, 
+               query = list(
+                 lat = 53.421813,
+                 lng = -2.330251,
+                 date = "2018-05")
+               )
+
+request
+
+response <- content(request, as = "text", encoding = "UTF-8")
+df <- fromJSON(response, flatten = TRUE) %>% 
+  data.frame()
+df
+
+
+```
+
+```{r}
+
+url<-"https://api.covidactnow.org/v2/state/OR.json?"
+
+request2 <- GET(url = url, 
+               query = list(
+                 apiKey = "241c4552cb0344cb90bb1283680d45da"
+                 )
+               )
+
+request2
+
+response <- content(request2, as = "text", encoding = "UTF-8")
+response$content
+df <- fromJSON(response, flatten = TRUE) %>% 
+  data.frame()
+df
+
+```
+
+
 
