@@ -162,13 +162,13 @@ The results of form are logged in this Google Sheet:
 https://docs.google.com/spreadsheets/d/1JNaKXWEythLlr0FJR8ePtcyFANyZ5BKM-3EW-GsYABg/edit?usp=sharing
 
 
+Now, there's a little bit of weirdness with loading the Google Spreadsheet into RStudio. 
+
 
 ```{r}
 
 library(googlesheets4)
 options(gargle_oob_default = TRUE)
-
-
 
 
 
