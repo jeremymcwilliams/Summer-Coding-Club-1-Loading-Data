@@ -15,10 +15,7 @@ Welcome to Summer Coding Club part I! Today we're going to look at loading datas
 * Uploading to the Files area
 * From remote URL
 * From Google Sheets
-* Using an API
-** covidactnow.org
-** key: 241c4552cb0344cb90bb1283680d45da
-** api reference: https://apidocs.covidactnow.org/api
+
 
 
 ### Built-in datasets.
@@ -162,7 +159,13 @@ The results of form are logged in this Google Sheet:
 https://docs.google.com/spreadsheets/d/1JNaKXWEythLlr0FJR8ePtcyFANyZ5BKM-3EW-GsYABg/edit?usp=sharing
 
 
-Now, there's a little bit of weirdness with loading the Google Spreadsheet into RStudio. 
+Now, there's a little bit of weirdness with loading the Google Spreadsheet into RStudio. Once you run the code below, you'll need to interact with the console window in order to satisfy Google's authentication process (thanks for Kristen Bott at Reed for the info below):
+
+* In your console, you will be asked if it is okay to “cache OAuth access credentials in the folder” followed by a URL. (This means: “Is it okay for R to gain access to your Google Sheets in the future, or would you like to only grant one-time access?”) Type “1” in the console for “yes”, agreeing to both one-time and future access, and click enter.
+
+* Next, R will open a window in your browser asking for tidyverse access to your Google account. This will allow R to access your documents in the future when you want to read in files. Follow the directions in the browser and grant access.
+
+* Finally, you will be asked to copy a URL from your browser window into your console, where you will paste it in as the “authorization code” and then click enter.
 
 
 ```{r}
@@ -172,60 +175,61 @@ options(gargle_oob_default = TRUE)
 
 
 
-example <- read_sheet("https://docs.google.com/spreadsheets/d/1JNaKXWEythLlr0FJR8ePtcyFANyZ5BKM-3EW-GsYABg/edit?usp=sharing")
+classData <- read_sheet("https://docs.google.com/spreadsheets/d/1JNaKXWEythLlr0FJR8ePtcyFANyZ5BKM-3EW-GsYABg/edit?usp=sharing")
 
 
-example
+classData
 
 ```
 
 
+
+### Some super light statistics
+
+To wrap things up, we're going to determine the mean and standard deviations of a couple columns in our dataset. To do this, we need to first create a variable that has all the values for a specific column. You can do this by using the "dataset$column" syntax:
 
 
 ```{r}
-library(httr) ; library(jsonlite)
 
+distance<-classData$`How many miles are you currently from campus?`
 
-
-
-path <- "https://data.police.uk/api/crimes-street/burglary?"
-
-request <- GET(url = path, 
-               query = list(
-                 lat = 53.421813,
-                 lng = -2.330251,
-                 date = "2018-05")
-               )
-
-request
-
-response <- content(request, as = "text", encoding = "UTF-8")
-df <- fromJSON(response, flatten = TRUE) %>% 
-  data.frame()
-df
+distance
 
 
 ```
+
+Now we can pretty easily calculate the mean and standard deviation for the array of responses for 'distance':
 
 ```{r}
 
-url<-"https://api.covidactnow.org/v2/state/OR.json?"
+mean(distance)
 
-request2 <- GET(url = url, 
-               query = list(
-                 apiKey = "241c4552cb0344cb90bb1283680d45da"
-                 )
-               )
-
-request2
-
-response <- content(request2, as = "text", encoding = "UTF-8")
-response$content
-df <- fromJSON(response, flatten = TRUE) %>% 
-  data.frame()
-df
+sd(distance)
 
 ```
+
+
+YOUR TURN:
+
+Calculate the mean and standard deviations for the responses to the 'pets' question, and the 'height' question.
+
+
+```{r}
+
+
+```
+
+
+Bonus: What is the Pearson Correlation coefficient between height and number of pets owned?
+(http://www.sthda.com/english/wiki/correlation-test-between-two-variables-in-r)
+
+```{r}
+# requires ggpubr library
+library("ggpubr")
+```
+
+
+Next week: data wrangling & penguins with dplyr!
 
 
 
